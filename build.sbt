@@ -66,8 +66,8 @@ pomIncludeRepository := { _ => false }
 
 pomExtra <<= name { n =>
 <scm>
-  <url>git@github.com:Sciss/{name}.git</url>
-  <connection>scm:git:git@github.com:Sciss/{name}.git</connection>
+  <url>git@github.com:Sciss/{n}.git</url>
+  <connection>scm:git:git@github.com:Sciss/{n}.git</connection>
 </scm>
 <developers>
    <developer>
