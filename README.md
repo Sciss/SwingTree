@@ -1,8 +1,8 @@
 # Scala Swing Tree Wrapper 
 
-This is a fork of the original project by Ken Scambler. It is currently placed in the public domain (see [issue #6](https://github.com/kenbot/ScalaSwingTreeWrapper/issues/6)).
+This is a fork of the original project by Ken Scambler which was placed in the public domain (see [issue #6](https://github.com/kenbot/ScalaSwingTreeWrapper/issues/6)).
 
-The purpose of this fork/branch is to move to a private name space (`de.sciss.swingtree`) in order to make this package available on Maven Central for ad hoc use, without the danger of colliding with a possible future `scala.swing` package, should this ever be incorporated into the standard Scala library.
+The purpose of this fork/branch, using a BSD style license, is to move to a private name space (`de.sciss.swingtree`) in order to make this package available on Maven Central for ad hoc use, without the danger of colliding with a possible future `scala.swing` package, should this ever be incorporated into the standard Scala library.
 
 So to link to this fork:
 
