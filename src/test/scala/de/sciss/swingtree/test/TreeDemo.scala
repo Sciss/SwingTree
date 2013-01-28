@@ -1,26 +1,23 @@
-package scala.swing
+package de.sciss.swingtree
 package test
 
-import scala.xml._
-import Swing._
-import swing.event._
-import swing.tree._
-import Tree._
-import java.awt.Color
-import java.awt.{event => jae}
-import scala.collection.mutable.ListBuffer
+import java.awt.Dimension
+import collection.mutable.ListBuffer
+import swing.{Swing, TabbedPane, ScrollPane, GridPanel, Action, Button, BorderPanel, Component, MainFrame, Label, SimpleSwingApplication}
+import tree.{InternalTreeModel, ExternalTreeModel, TreeModel, Tree}
+import java.io.File
+import de.sciss.swingtree.event.TreeNodeSelected
+import xml.XML
+import util.control.NonFatal
+import Swing.pair2Dimension
 
 object TreeDemo extends SimpleSwingApplication {
-  import Tree._
-  import java.io._
-
-
   import ExampleData._
       
   // Use case 1: Show an XML document
-  lazy val xmlTree = new Tree[Node] {
+  lazy val xmlTree = new Tree[xml.Node] {
     model = TreeModel(xmlDoc)(_.child filterNot (_.text.trim.isEmpty))
-    renderer = Renderer(n => 
+    renderer = Tree.Renderer(n =>
         if (n.label startsWith "#") n.text.trim 
         else n.label)
         
@@ -35,7 +32,7 @@ object TreeDemo extends SimpleSwingApplication {
       else Seq()
     }
     
-    renderer = Renderer.labelled {f =>
+    renderer = Tree.Renderer.labelled {f =>
       val icon = if (f.isDirectory) folderIcon 
                  else fileIcon
       (icon, f.getName)
@@ -53,7 +50,7 @@ object TreeDemo extends SimpleSwingApplication {
       case _ => Seq.empty
     } 
 
-    renderer = Renderer({
+    renderer = Tree.Renderer({
       case Order(id, _, _, 1) => "Order #" + id
       case Order(id, _, _, qty) => "Order #" + id + " x " + qty
       case Product(id, _, _) => "Product " + id
@@ -98,12 +95,12 @@ object TreeDemo extends SimpleSwingApplication {
       case TreeNodeSelected(node) => externalTreeStatusBar.text = "Selected: " + node
     }
     
-    renderer = Renderer.labelled  {f =>
+    renderer = Tree.Renderer.labelled  {f =>
       val icon = if (f.isDirectory) folderIcon 
                  else fileIcon
       (icon, f.name)
     }
-    editor = Editor((_: PretendFile).name, new PretendFile(_: String))
+    editor = Tree.Editor((_: PretendFile).name, new PretendFile(_: String))
     expandRow(0)
   }
 
@@ -198,25 +195,23 @@ object TreeDemo extends SimpleSwingApplication {
     title = "Scala Swing Tree Demo"
   
     contents = new TabbedPane {
-      import TabbedPane.Page
-      import BorderPanel.Position._
-      
       def southCenterAndEast(north: Component, center: Component, east: Component) = new BorderPanel {
+        import BorderPanel.Position._
         layout(north) = South
         layout(center) = Center
         layout(east) = East
       }
       
-      pages += new Page("1: XML file", new ScrollPane(xmlTree))
-      pages += new Page("2: File system", new ScrollPane(fileSystemTree))
-      pages += new Page("3: Diverse object graph", new ScrollPane(objectGraphTree))
-      pages += new Page("4: Infinite structure", new ScrollPane(infiniteTree))
-      pages += new Page("5: Mutable external model", southCenterAndEast(
+      pages += new TabbedPane.Page("1: XML file", new ScrollPane(xmlTree))
+      pages += new TabbedPane.Page("2: File system", new ScrollPane(fileSystemTree))
+      pages += new TabbedPane.Page("3: Diverse object graph", new ScrollPane(objectGraphTree))
+      pages += new TabbedPane.Page("4: Infinite structure", new ScrollPane(infiniteTree))
+      pages += new TabbedPane.Page("5: Mutable external model", southCenterAndEast(
         externalTreeStatusBar, 
         new ScrollPane(mutableExternalTree),
         new ButtonPanel(mutableExternalTree, externalTreeStatusBar.text_=)))
       
-      pages += new Page("6: Mutable internal model", southCenterAndEast(
+      pages += new TabbedPane.Page("6: Mutable internal model", southCenterAndEast(
         internalTreeStatusBar, 
         new ScrollPane(mutableInternalTree),
         new ButtonPanel(mutableInternalTree, internalTreeStatusBar.text_=)))
@@ -229,8 +224,8 @@ object TreeDemo extends SimpleSwingApplication {
     
     // File system icons
     def getIconUrl(path: String) = resourceFromClassloader(path) ensuring (_ != null, "Couldn't find icon " + path)
-    val fileIcon = Icon(getIconUrl("/scala/swing/test/images/file.png"))
-    val folderIcon = Icon(getIconUrl("/scala/swing/test/images/folder.png"))
+    val fileIcon = Swing.Icon(getIconUrl("images/file.png"))
+    val folderIcon = Swing.Icon(getIconUrl("images/folder.png"))
     
     // Contrived class hierarchy
     case class Customer(id: Int, title: String, firstName: String, lastName: String)
@@ -252,8 +247,8 @@ object TreeDemo extends SimpleSwingApplication {
       Order(3, bob, boxOfNails, 44),
       Order(4, susan, nailGun, 1))
       
-    lazy val xmlDoc: Node = try {XML load resourceFromClassloader("/scala/swing/test/sample.xml")}
-                            catch {case _ => <error> Error reading XML file. </error>}
+    lazy val xmlDoc: xml.Node = try {XML load resourceFromClassloader("sample.xml")}
+                                catch {case NonFatal(_) => <error> Error reading XML file. </error>}
                             
                     
     // Pretend file system, so we can safely add/edit/delete stuff
@@ -262,7 +257,7 @@ object TreeDemo extends SimpleSwingApplication {
       childFiles foreach {_.parent = Some(this)}
       private var childBuffer = ListBuffer(childFiles: _*)
       
-      override def toString() = name
+      override def toString = name
       def name = nameVar
       def rename(str: String): Boolean = if (siblingExists(str)) false 
                                          else { nameVar = str; true }
@@ -308,6 +303,3 @@ object TreeDemo extends SimpleSwingApplication {
         PretendFile("something.moo"))
   }
 }
-
-
-

@@ -1,7 +1,8 @@
-package scala.swing.event
+package de.sciss.swingtree
+package event
 
-import scala.swing.tree.Tree
-import scala.swing.event._
+import tree.Tree
+import swing.event.{SelectionEvent, ComponentEvent}
 
 trait TreeEvent[A] extends ComponentEvent {
   val source: Tree[A]

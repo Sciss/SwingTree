@@ -1,10 +1,12 @@
-name := "ScalaSwingTreeWrapper"
+name := "SwingTree"
 
-version := "1.2"
+version := "1.2.0"
+
+organization := "de.sciss"
 
 scalaVersion := "2.10.0"
 
-scalacOptions ++= Seq("-deprecation")
+scalacOptions ++= Seq("-deprecation", "-feature", "-language:higherKinds", "-language:implicitConversions")
 
 libraryDependencies <+= scalaVersion { sv =>
   "org.scala-lang" % "scala-swing" % sv
@@ -18,7 +20,7 @@ libraryDependencies ++= Seq(
 retrieveManaged := true
 
 initialCommands in console := """
-  import scala.swing._
+  import de.sciss.swingtree._
   import tree._
   import test._
   import Swing._

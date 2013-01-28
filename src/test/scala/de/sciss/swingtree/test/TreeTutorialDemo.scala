@@ -1,13 +1,13 @@
-package scala.swing
+package de.sciss.swingtree
 package test
 
-import scala.swing.event._
-import scala.swing.tree._
-import Swing._
 import java.net.URL
-import GridPanel.Adapt
 import java.io.IOException
-import Tree._
+import swing.{Swing, SplitPane, ScrollPane, EditorPane, GridPanel, MainFrame, SimpleSwingApplication}
+import tree.{TreeModel, Tree}
+import event.TreeNodeSelected
+import java.awt.Dimension
+import Swing.pair2Dimension
 
 object TreeTutorialDemo extends SimpleSwingApplication {
   def top = new MainFrame {
@@ -16,7 +16,7 @@ object TreeTutorialDemo extends SimpleSwingApplication {
   }
 }
 
-class TreeTutorialDemo extends GridPanel(1, Adapt) {
+class TreeTutorialDemo extends GridPanel(1, GridPanel.Adapt) {
 
   case class BookInfo(book: String, filename: String) {
     val bookURL = getURL(filename)
@@ -43,11 +43,11 @@ class TreeTutorialDemo extends GridPanel(1, Adapt) {
       case _ => Nil
     })
 
-    renderer = Renderer(_ match {
+    renderer = Tree.Renderer(_ match {
       case (category, _) => category
       case BookInfo(title, _) => title
     })
-    expandAll
+    expandAll()
     selection.mode = Tree.SelectionMode.Single
   }
   
@@ -81,7 +81,7 @@ class TreeTutorialDemo extends GridPanel(1, Adapt) {
   val helpURL = getURL("TreeDemoHelp.html")
   displayURL(helpURL)
   
-  private def getURL(s: String) = getClass.getResource("/scala/swing/test/" + s).ensuring(
+  private def getURL(s: String) = getClass.getResource(s).ensuring(
       _ != null, "Couldn't find file: " + s).toURI.toURL 
 
   // Layout components   
@@ -97,4 +97,3 @@ class TreeTutorialDemo extends GridPanel(1, Adapt) {
   }
 
 }
-

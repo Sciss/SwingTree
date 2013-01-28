@@ -1,4 +1,5 @@
-package scala.swing.tree
+package de.sciss.swingtree
+package tree
 
 import javax.swing.{tree => jst}
 import Tree.Path
@@ -43,7 +44,7 @@ class InternalTreeModel[A] private (val peer: PeerModel) extends TreeModel[A] {
       node :: pathList
     }.reverse
 
-    val array = nodePath.toArray(ClassManifest.Object)
+    val array = nodePath.toArray[AnyRef]
     new jst.TreePath(array)
   }
 

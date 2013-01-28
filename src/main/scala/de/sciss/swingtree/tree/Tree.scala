@@ -1,22 +1,11 @@
-package scala.swing
+package de.sciss.swingtree
 package tree
 
-import javax.swing.event.TreeModelListener
-import javax.swing.JTree
-import javax.swing.event.TreeSelectionListener
-import scala.collection.SeqView
-import javax.swing.{Icon, JComponent}
-import scala.swing.event._
-import javax.swing.event.CellEditorListener
-import scala.collection._
-import scala.collection.mutable.{ListBuffer, Buffer, ArrayBuffer}
-import scala.reflect.ClassManifest
-import java.util.EventObject
-import java.io._
-import Swing._
 import javax.{swing => js}
-import js.{tree => jst}
-import js.{event => jse}
+import js.{Icon, JComponent, JTree, tree => jst, event => jse}
+import swing.{Label, Scrollable, Component}
+import java.awt.Color
+import event.{TreeNodesChanged, TreeNodesRemoved, TreeNodesInserted, TreePathSelected, TreeStructureChanged}
 
 sealed trait TreeEditors extends EditableCellsCompanion {
   this: Tree.type => 
@@ -67,7 +56,7 @@ sealed trait TreeEditors extends EditableCellsCompanion {
         }
         def addCellEditorListener(cel: jse.CellEditorListener) { editor.peer.addCellEditorListener(cel) }
         def cancelCellEditing() { editor.peer.cancelCellEditing() }
-        def getCellEditorValue(): AnyRef = toA(editor.peer.getCellEditorValue.asInstanceOf[B]).asInstanceOf[AnyRef]
+        def getCellEditorValue: AnyRef = toA(editor.peer.getCellEditorValue.asInstanceOf[B]).asInstanceOf[AnyRef]
         def isCellEditable(e: java.util.EventObject) = editor.peer.isCellEditable(e)
         def removeCellEditorListener(cel: jse.CellEditorListener) { editor.peer.removeCellEditorListener(cel) }
         def shouldSelectCell(e: java.util.EventObject) = { editor.peer.shouldSelectCell(e) }
@@ -260,6 +249,7 @@ sealed trait TreeRenderers extends RenderableCellsCompanion {
     def textSelectionColor_=(c: Color) {peer.setTextSelectionColor(c)}
 
     override def componentFor(tree: Tree[_], value: A, info: Renderer.CellInfo): Component = {
+      import language.reflectiveCalls
       peer.defaultRendererComponent(tree.peer, value.asInstanceOf[AnyRef], info.isSelected, info.isExpanded, info.isLeaf, info.row, info.hasFocus)
       this
     }
@@ -292,7 +282,7 @@ object Tree extends TreeRenderers with TreeEditors {
     val Single = Value(jst.TreeSelectionModel.SINGLE_TREE_SELECTION)
   }
 
-  private[swing] trait JTreeMixin[A] { def treeWrapper: Tree[A] }
+  protected trait JTreeMixin[A] { def treeWrapper: Tree[A] }
 }
 
 
@@ -356,7 +346,7 @@ class Tree[A](private var treeDataModel: TreeModel[A] = TreeModel.empty[A])
     }
     override def componentFor(tree: Tree[_], a: B, info: Editor.CellInfo): Component = {
       val c = peer.getTreeCellEditorComponent(tree.peer, a, info.isSelected, info.isExpanded, 
-          info.isLeaf, info.row).asInstanceOf[java.awt.Component]
+          info.isLeaf, info.row)
           
       // Unfortunately the underlying editor peer returns a java.awt.Component, not a javax.swing.JComponent.
       // Since there is currently no way to wrap a java.awt.Component in a scala.swing.Component, we need to 
@@ -385,15 +375,15 @@ class Tree[A](private var treeDataModel: TreeModel[A] = TreeModel.empty[A])
       def leadSelection = peer.getLeadSelectionRow
     }
 
-    object paths extends SelectionSet[Path[A]](peer.getSelectionPaths map treePathToPath toSeq) {
+    object paths extends SelectionSet[Path[A]](peer.getSelectionPaths.map(treePathToPath).toSeq) {
       def -=(p: Path[A]) = { peer.removeSelectionPath(p); this }
       def +=(p: Path[A]) = { peer.addSelectionPath(p); this }
-      override def --=(ps: Seq[Path[A]]) = { peer.removeSelectionPaths(ps map pathToTreePath toArray); this }
-      override def ++=(ps: Seq[Path[A]]) = { peer.addSelectionPaths(ps map pathToTreePath toArray); this }
+      override def --=(ps: Seq[Path[A]]) = { peer.removeSelectionPaths(ps.map(pathToTreePath).toArray); this }
+      override def ++=(ps: Seq[Path[A]]) = { peer.addSelectionPaths(ps.map(pathToTreePath).toArray); this }
       def leadSelection: Option[Path[A]] = Option(peer.getLeadSelectionPath)
     }
 
-    peer.getSelectionModel.addTreeSelectionListener(new TreeSelectionListener {
+    peer.getSelectionModel.addTreeSelectionListener(new jse.TreeSelectionListener {
       def valueChanged(e: jse.TreeSelectionEvent) {
         val (newPath, oldPath) = e.getPaths.toList.partition(e.isAddedPath)
         
@@ -416,7 +406,7 @@ class Tree[A](private var treeDataModel: TreeModel[A] = TreeModel.empty[A])
   }
 
   
-  protected val modelListener = new TreeModelListener {
+  protected val modelListener = new jse.TreeModelListener {
     override def treeStructureChanged(e: jse.TreeModelEvent) {
       publish(TreeStructureChanged[A](Tree.this, e.getPath.asInstanceOf[Array[A]].toIndexedSeq, 
               e.getChildIndices.toList, e.getChildren.asInstanceOf[Array[A]].toList))
@@ -455,7 +445,7 @@ class Tree[A](private var treeDataModel: TreeModel[A] = TreeModel.empty[A])
 
   def model = treeDataModel
   
-  def model_=(tm: TreeModel[A]) = {
+  def model_=(tm: TreeModel[A]) {
     if (treeDataModel != null)
       treeDataModel.peer.removeTreeModelListener(modelListener)
       
@@ -474,7 +464,7 @@ class Tree[A](private var treeDataModel: TreeModel[A] = TreeModel.empty[A])
   def isExpanded(path: Path[A]) = peer isExpanded path
   def isCollapsed(path: Path[A]) = peer isCollapsed path
   
-  def isEditing() = peer.isEditing()
+  def isEditing = peer.isEditing
   
   def editable: Boolean = peer.isEditable
   def editable_=(b: Boolean) {peer.setEditable(b)}
@@ -501,7 +491,7 @@ class Tree[A](private var treeDataModel: TreeModel[A] = TreeModel.empty[A])
   
   // Follows the naming convention of ListView.selectIndices()
   def selectRows(rows: Int*)  { peer.setSelectionRows(rows.toArray) }
-  def selectPaths(paths: Path[A]*) { peer.setSelectionPaths(paths map pathToTreePath toArray) }
+  def selectPaths(paths: Path[A]*) { peer.setSelectionPaths(paths.map(pathToTreePath).toArray) }
   def selectInterval(first: Int, last: Int) { peer.setSelectionInterval(first, last) }
   
   def rowCount = peer.getRowCount

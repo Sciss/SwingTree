@@ -1,20 +1,17 @@
-package scala.swing.test
+package de.sciss.swingtree
+package test
 
-import org.scalatest._
+import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
-import matchers._
-import scala.swing._
-import scala.swing.event._
-import scala.swing.tree._
-import Tree._
-
+import tree.{TreeModel, ExternalTreeModel, Tree}
+import org.scalatest.FunSpec
 
 @RunWith(classOf[JUnitRunner])
-class TreeSpec extends Spec with ShouldMatchers  {
+class TreeSpec extends FunSpec with ShouldMatchers  {
 
   case class Node[A](var value: A, children: Seq[Node[A]] = Nil) {
-    override def toString() = value.toString
+    override def toString = value.toString
   }
 
   val dataTree = 
@@ -107,7 +104,7 @@ class TreeSpec extends Spec with ShouldMatchers  {
   describe("Editor") {
     it("should start editing when asked") {
       val tree = createTreeView()
-      tree.startEditingAtPath(Path(hobbies, indoor, chess))
+      tree.startEditingAtPath(Tree.Path(hobbies, indoor, chess))
       tree.isEditing should be (true)
     }
     /*

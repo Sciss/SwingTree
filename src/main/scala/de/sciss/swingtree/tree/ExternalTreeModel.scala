@@ -1,12 +1,10 @@
-package scala.swing.tree
+package de.sciss.swingtree
+package tree
 
 import Tree.Path
-import scala.collection.mutable.ListBuffer
+import collection.mutable.ListBuffer
 import javax.swing.{tree => jst}
-import javax.swing.event.TreeModelEvent
-import javax.swing.event.TreeModelListener
-import scala.collection.mutable.ArrayBuffer
-import scala.sys.error
+import javax.swing.event.{TreeModelEvent, TreeModelListener}
 
 object ExternalTreeModel {
   def empty[A]: ExternalTreeModel[A] = new ExternalTreeModel[A](Seq.empty, _ => Seq.empty)
@@ -39,7 +37,7 @@ class ExternalTreeModel[A](rootItems: Seq[A],
   def map[B](f: A=>B): InternalTreeModel[B] = toInternalModel map f
   
   def pathToTreePath(path: Tree.Path[A]): jst.TreePath = {
-    val array = (hiddenRoot +: path).map(_.asInstanceOf[AnyRef]).toArray(ClassManifest.Object)
+    val array = (hiddenRoot +: path).map(_.asInstanceOf[AnyRef]).toArray // (ClassManifest.Object)
     new jst.TreePath(array)
   }
   
@@ -53,7 +51,7 @@ class ExternalTreeModel[A](rootItems: Seq[A],
    * make a TreeModel updatable, call makeUpdatable() to provide a new TreeModel with the specified update method.
    */
   protected[tree] val updateFunc: (Path[A], A) => A = {
-    (_,_) => error("Update is not supported on this tree")
+    (_,_) => throw new UnsupportedOperationException("Update is not supported on this tree")
   }
   
   /** 
@@ -62,7 +60,7 @@ class ExternalTreeModel[A](rootItems: Seq[A],
    * call insertableWith() to provide a new TreeModel with the specified insert method.
    */
   protected[tree] val insertFunc: (Path[A], A, Int) => Boolean = {
-    (_,_,_) => error("Insert is not supported on this tree")
+    (_,_,_) => throw new UnsupportedOperationException("Insert is not supported on this tree")
   }
 
   /** 
@@ -71,7 +69,7 @@ class ExternalTreeModel[A](rootItems: Seq[A],
    * call removableWith() to provide a new TreeModel with the specified remove method.
    */
   protected[tree] val removeFunc: Path[A] => Boolean = {
-    _ => error("Removal is not supported on this tree")
+    _ => throw new UnsupportedOperationException("Removal is not supported on this tree")
   }
   
   /**
@@ -159,7 +157,7 @@ class ExternalTreeModel[A](rootItems: Seq[A],
     if (index == -1) return false
       
     val succeeded = if (pathToRemove.size == 1) {
-      rootsVar = rootsVar.filterNot(pathToRemove.last ==)
+      rootsVar = rootsVar.filterNot(pathToRemove.last == _)
       true
     }
     else {
@@ -179,7 +177,7 @@ class ExternalTreeModel[A](rootItems: Seq[A],
 
     def getChildrenOf(parent: Any) = parent match {
       case `hiddenRoot` => roots
-      case a: A => children(a)
+      case a => children(a.asInstanceOf[A])
     }
     
     def getChild(parent: Any, index: Int): AnyRef = {
@@ -187,11 +185,11 @@ class ExternalTreeModel[A](rootItems: Seq[A],
       if (index >= 0 && index < ch.size) 
         ch(index).asInstanceOf[AnyRef] 
       else 
-        error("No child of \"" + parent + "\" found at index " + index)
+        throw new IndexOutOfBoundsException("No child of \"" + parent + "\" found at index " + index)
     }
     def getChildCount(parent: Any): Int = getChildrenOf(parent).size
     def getIndexOfChild(parent: Any, child: Any): Int = getChildrenOf(parent) indexOf child
-    def getRoot(): AnyRef = hiddenRoot
+    def getRoot: AnyRef = hiddenRoot
     def isLeaf(node: Any): Boolean = getChildrenOf(node).isEmpty
     
     

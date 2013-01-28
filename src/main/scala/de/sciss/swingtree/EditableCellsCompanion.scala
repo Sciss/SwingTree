@@ -6,11 +6,13 @@
 **                          |/                                          **
 \*                                                                      */
 
-package scala.swing
+package de.sciss
+package swingtree
 
-import scala.swing.event._
+import event.{CellEditingStopped, CellEditingCancelled}
 import javax.swing.{CellEditor => JCellEditor, AbstractCellEditor => JAbstractCellEditor}
 import javax.swing.event.{CellEditorListener, ChangeEvent}
+import swing.{Publisher, Component}
 
 /**
 * Describes the structure of a component's companion object where pluggable cell editors must be supported.
@@ -31,7 +33,7 @@ trait EditableCellsCompanion {
     def apply[A, B: Editor](toB: A => B, toA: B => A): Editor[A]
   }
   
-  trait CellEditor[A] extends Publisher with scala.swing.CellEditor[A] {
+  trait CellEditor[A] extends Publisher with swingtree.CellEditor[A] {
     val companion: CellEditorCompanion
     def peer: companion.Peer
 
@@ -46,7 +48,7 @@ trait EditableCellsCompanion {
     }
 
     abstract class EditorPeer extends JAbstractCellEditor {
-      override def getCellEditorValue(): AnyRef = value.asInstanceOf[AnyRef]
+      override def getCellEditorValue: AnyRef = value.asInstanceOf[AnyRef]
       listenToPeer(this)
     }
 
@@ -54,7 +56,7 @@ trait EditableCellsCompanion {
     
     def cellEditable = peer.isCellEditable(null)
     def shouldSelectCell = peer.shouldSelectCell(null)
-    def cancelCellEditing() = peer.cancelCellEditing
+    def cancelCellEditing() { peer.cancelCellEditing() }
     def stopCellEditing() = peer.stopCellEditing
   }
 }

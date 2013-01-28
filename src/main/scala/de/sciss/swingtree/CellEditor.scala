@@ -7,7 +7,9 @@
 \*                                                                      */
 
 
-package scala.swing
+package de.sciss.swingtree
+
+import swing.Publisher
 
 /**
 * Common superclass of cell editors.

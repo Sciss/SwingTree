@@ -7,11 +7,10 @@
 \*                                                                      */
 
 
-package scala.swing
+package de.sciss.swingtree
 
-import scala.swing.event._
-import Swing._
 import javax.swing.Icon
+import swing.{Publisher, Label, Component}
 
 /**
 * Describes the structure of a component's companion object where pluggable cell renderers must be supported.

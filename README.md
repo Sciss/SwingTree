@@ -1,6 +1,16 @@
 # Scala Swing Tree Wrapper 
 
-Ken Scambler
+This is a fork of the original project by Ken Scambler. It is currently placed in the public domain (see [issue #6](https://github.com/kenbot/ScalaSwingTreeWrapper/issues/6)).
+
+The purpose of this fork/branch is to move to a private name space (`de.sciss.swingtree`) in order to make this package available on Maven Central for ad hoc use, without the danger of colliding with a possible future `scala.swing` package, should this ever be incorporated into the standard Scala library.
+
+So to link to this fork:
+
+    "de.sciss" %% "swingtree" % "1.2.+"
+
+Below are the original notes.
+
+-----
 
 This project provides a Scala wrapper for Java's JTree class, and aims to be suitable for eventual inclusion in the official Scala Swing library.
 The design was initiated in the Scala debate forum in February 2010.

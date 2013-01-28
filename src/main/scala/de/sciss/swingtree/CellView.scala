@@ -6,8 +6,9 @@
 **                          |/                                          **
 \*                                                                      */
 
-package scala.swing
-import collection._
+package de.sciss.swingtree
+import swing.{Publisher, Component}
+import collection.mutable
 
 /**
 * Describes components that have a concept of a "cell", each of which contains a value, may be selected, 
@@ -38,7 +39,7 @@ trait CellView[+A] {
       override def size = nonNullOrEmpty(a).length
       def contains(s: S) = nonNullOrEmpty(a) contains s
       def iterator = nonNullOrEmpty(a).iterator
-      protected def nonNullOrEmpty[A](s: Seq[A]) = if (s != null) s else Seq.empty
+      protected def nonNullOrEmpty[A1](s: Seq[A1]) = if (s != null) s else Seq.empty
     }
     
     /**
