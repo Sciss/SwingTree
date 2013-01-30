@@ -38,12 +38,12 @@ trait EditableCellsCompanion {
     def peer: companion.Peer
 
     protected def fireCellEditingCancelled() { publish(CellEditingCancelled(CellEditor.this)) }
-    protected def fireCellEditingStopped() { publish(CellEditingStopped(CellEditor.this)) }
+    protected def fireCellEditingStopped()   { publish(CellEditingStopped(  CellEditor.this)) }
 
     protected def listenToPeer(p: JCellEditor) {
       p.addCellEditorListener(new CellEditorListener {
         override def editingCanceled(e: ChangeEvent) { fireCellEditingCancelled() }
-        override def editingStopped(e: ChangeEvent) { fireCellEditingStopped() }
+        override def editingStopped( e: ChangeEvent) { fireCellEditingStopped()   }
       })
     }
 
@@ -54,9 +54,9 @@ trait EditableCellsCompanion {
 
     def componentFor(owner: Owner, value: A, cellInfo: companion.CellInfo): Component
     
-    def cellEditable = peer.isCellEditable(null)
-    def shouldSelectCell = peer.shouldSelectCell(null)
+    def cellEditable        = peer.isCellEditable(null)
+    def shouldSelectCell    = peer.shouldSelectCell(null)
     def cancelCellEditing() { peer.cancelCellEditing() }
-    def stopCellEditing() = peer.stopCellEditing
+    def stopCellEditing()   = peer.stopCellEditing
   }
 }

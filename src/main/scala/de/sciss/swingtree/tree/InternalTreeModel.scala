@@ -4,9 +4,9 @@ package tree
 import javax.swing.{tree => jst}
 import Tree.Path
 import TreeModel.hiddenRoot
-import scala.collection.JavaConversions.enumerationAsScalaIterator
-import scala.sys.error
+import collection.JavaConversions.enumerationAsScalaIterator
 import InternalTreeModel.{PeerModel, PeerNode}
+import collection.breakOut
 
 object InternalTreeModel {
   
@@ -26,12 +26,11 @@ object InternalTreeModel {
   }
   
   private[tree] type PeerModel = jst.DefaultTreeModel
-  private[tree] type PeerNode = jst.DefaultMutableTreeNode
+  private[tree] type PeerNode  = jst.DefaultMutableTreeNode
 }
 
 
 class InternalTreeModel[A] private (val peer: PeerModel) extends TreeModel[A] { 
-  
   self =>
     
   def this() = this(new PeerModel(new PeerNode(hiddenRoot)))
@@ -40,7 +39,7 @@ class InternalTreeModel[A] private (val peer: PeerModel) extends TreeModel[A] {
     
     val nodePath = path.foldLeft(List(rootPeerNode)) { (pathList, a) => 
       val childNodes = getNodeChildren(pathList.head)
-      val node = childNodes.find(_.getUserObject == a) getOrElse error("Couldn't find internal node for " + a)
+      val node = childNodes.find(_.getUserObject == a) getOrElse sys.error("Couldn't find internal node for " + a)
       node :: pathList
     }.reverse
 
@@ -50,7 +49,7 @@ class InternalTreeModel[A] private (val peer: PeerModel) extends TreeModel[A] {
 
   def treePathToPath(tp: jst.TreePath): Tree.Path[A] = {
     if (tp == null) null 
-    else (tp.getPath map unpackNode).tail.toIndexedSeq
+    else ((tp.getPath map unpackNode)(breakOut): Tree.Path[A]).tail
   } 
   
   private def rootPeerNode = peer.getRoot.asInstanceOf[PeerNode]
@@ -75,14 +74,14 @@ class InternalTreeModel[A] private (val peer: PeerModel) extends TreeModel[A] {
     true
   }
   
-  def map[B](f: A=>B): InternalTreeModel[B] = new InternalTreeModel[B] {
+  def map[B](f: A => B): InternalTreeModel[B] = new InternalTreeModel[B] {
     override val peer = copyFromModel(self, f)
   }
 
   protected[tree] def copyFromModel[B](otherModel: TreeModel[B], f: B => A): jst.DefaultTreeModel = {
     def copyNodeAt(bPath: Path[B]): PeerNode = {
-      val copiedNode = new PeerNode(f(bPath.last))
-      val otherChildren = otherModel.getChildrenOf(bPath)
+      val copiedNode     = new PeerNode(f(bPath.last))
+      val otherChildren  = otherModel.getChildrenOf(bPath)
       val copiedChildren = otherChildren map { b => copyNodeAt(bPath :+ b) }
       copiedChildren foreach copiedNode.add
       copiedNode

@@ -48,11 +48,11 @@ trait RenderableCellsCompanion {
     /**
     * Convenient default display of a cell node, which provides an Icon and label text for each item.
     */
-    def labelled[A](f: A => (Icon, String)): DefaultRenderer[A]
+    def labeled[A](f: A => (Icon, String)): DefaultRenderer[A]
     
     protected trait LabelRenderer[-A] extends CellRenderer[A] {
-      this: DefaultRenderer[A] =>
-      val convert: A => (Icon, String)
+      _: DefaultRenderer[A] =>
+      def convert: A => (Icon, String)
       
       override abstract def componentFor(owner: Owner, a: A, info: companion.CellInfo): Component = {
         val c = super.componentFor(owner, a, info)

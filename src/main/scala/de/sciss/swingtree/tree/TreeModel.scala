@@ -25,8 +25,8 @@ trait TreeModel[A] {
   def getChildrenOf(parentPath: Path[A]): Seq[A]
   def getChildPathsOf(parentPath: Path[A]): Seq[Path[A]] = getChildrenOf(parentPath).map(parentPath :+ _)
   def filter(p: A => Boolean): TreeModel[A]
-  def map[B](f: A=>B): TreeModel[B]
-  def foreach[U](f: A=>U) { depthFirstIterator foreach f }
+  def map[B](f: A => B): TreeModel[B]
+  def foreach[U](f: A => U) { depthFirstIterator foreach f }
   def isExternalModel: Boolean
   def toInternalModel: InternalTreeModel[A]
   
@@ -55,7 +55,7 @@ trait TreeModel[A] {
     
     val parentPath = path.init
     val index = siblingsUnder(parentPath) indexOf path.last
-    insertUnder(parentPath, newValue, index+1)
+    insertUnder(parentPath, newValue, index + 1)
   }
   
   protected def siblingsUnder(parentPath: Path[A]) = if (parentPath.isEmpty) roots 
@@ -80,7 +80,7 @@ trait TreeModel[A] {
   }
   
   def breadthFirstIterator: Iterator[A] = new TreeIterator {
-    override def pushChildren(path: Path[A]) {openNodes ++= getChildPathsOf(path).toIterator}
+    override def pushChildren(path: Path[A]) { openNodes ++= getChildPathsOf(path).toIterator }
   }
   
   def depthFirstIterator: Iterator[A] = new TreeIterator {

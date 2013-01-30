@@ -32,7 +32,7 @@ object TreeDemo extends SimpleSwingApplication {
       else Seq()
     }
     
-    renderer = Tree.Renderer.labelled {f =>
+    renderer = Tree.Renderer.labeled {f =>
       val icon = if (f.isDirectory) folderIcon 
                  else fileIcon
       (icon, f.getName)
@@ -95,7 +95,7 @@ object TreeDemo extends SimpleSwingApplication {
       case TreeNodeSelected(node) => externalTreeStatusBar.text = "Selected: " + node
     }
     
-    renderer = Tree.Renderer.labelled  {f =>
+    renderer = Tree.Renderer.labeled  {f =>
       val icon = if (f.isDirectory) folderIcon 
                  else fileIcon
       (icon, f.name)

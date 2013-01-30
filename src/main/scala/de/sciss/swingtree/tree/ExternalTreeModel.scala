@@ -8,15 +8,14 @@ import javax.swing.event.{TreeModelEvent, TreeModelListener}
 
 object ExternalTreeModel {
   def empty[A]: ExternalTreeModel[A] = new ExternalTreeModel[A](Seq.empty, _ => Seq.empty)
-  def apply[A](roots: A*)(children: A => Seq[A]): ExternalTreeModel[A] = 
-      new ExternalTreeModel(roots, children)
+  def apply[A](roots: A*)(children: A => Seq[A]): ExternalTreeModel[A] =
+    new ExternalTreeModel(roots, children)
 }
 
 /**
  * Represents tree data as a sequence of root nodes, and a function that can retrieve child nodes.  
  */
-class ExternalTreeModel[A](rootItems: Seq[A], 
-                   children: A => Seq[A]) extends TreeModel[A] {
+class ExternalTreeModel[A](rootItems: Seq[A], children: A => Seq[A]) extends TreeModel[A] {
   self =>
   
   import TreeModel._
@@ -28,13 +27,14 @@ class ExternalTreeModel[A](rootItems: Seq[A],
   def getChildrenOf(parentPath: Path[A]): Seq[A] = if (parentPath.isEmpty) roots 
                                                    else children(parentPath.last)
   
-  def filter(p: A => Boolean): ExternalTreeModel[A] = new ExternalTreeModel[A](roots filter p, a => children(a) filter p) 
+  def filter(p: A => Boolean): ExternalTreeModel[A] =
+    new ExternalTreeModel[A](roots filter p, a => children(a) filter p)
 
   def toInternalModel: InternalTreeModel[A] = InternalTreeModel(roots: _*)(children)
   
   def isExternalModel = true
   
-  def map[B](f: A=>B): InternalTreeModel[B] = toInternalModel map f
+  def map[B](f: A => B): InternalTreeModel[B] = toInternalModel map f
   
   def pathToTreePath(path: Tree.Path[A]): jst.TreePath = {
     val array = (hiddenRoot +: path).map(_.asInstanceOf[AnyRef]).toArray // (ClassManifest.Object)
@@ -111,7 +111,7 @@ class ExternalTreeModel[A](rootItems: Seq[A],
     val result = updateFunc(path, newValue)
 
     val replacingWithDifferentReference = existing.isInstanceOf[AnyRef] && 
-                                          (existing.asInstanceOf[AnyRef] ne result.asInstanceOf[AnyRef])
+                                         (existing.asInstanceOf[AnyRef] ne result.asInstanceOf[AnyRef])
        
     
     // If the result is actually replacing the node with a different reference object, then 
