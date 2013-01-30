@@ -107,7 +107,7 @@ sealed trait TreeEditors extends EditableCellsCompanion {
 
 
 sealed trait TreeRenderers extends RenderableCellsCompanion {
-  this: Tree.type =>
+  _: Tree.type =>
 
   protected override type Owner = Tree[_]
   
@@ -481,8 +481,8 @@ class Tree[A](private var treeDataModel: TreeModel[A] = TreeModel.empty[A])
   def renderer: Renderer[A] = Renderer.wrap(peer.getCellRenderer)
   def renderer_=(r: Tree.Renderer[A])     { peer.setCellRenderer(r.peer) }
   
-  def showsRootHandles              = peer.getShowsRootHandles
-  def showsRootHandles_=(b:Boolean) { peer.setShowsRootHandles(b) }
+  def showsRootHandles               = peer.getShowsRootHandles
+  def showsRootHandles_=(b: Boolean) { peer.setShowsRootHandles(b) }
   
   def startEditingAtPath(path: Path[A]) { peer.startEditingAtPath(pathToTreePath(path)) }
 
@@ -508,4 +508,11 @@ class Tree[A](private var treeDataModel: TreeModel[A] = TreeModel.empty[A])
   def expandsSelectedPaths_=(b: Boolean) { peer.setExpandsSelectedPaths(b) }
   def dragEnabled               = peer.getDragEnabled
   def dragEnabled_=(b: Boolean) { peer.setDragEnabled(b) }
+
+  def visibleRowCount: Int         = peer.getVisibleRowCount
+  def visibleRowCount_=(rows: Int) { peer.setVisibleRowCount(rows) }
+  def makeVisible(path: Path[A])   { peer.makeVisible(pathToTreePath(path)) }
+  def cancelEditing()              { peer.cancelEditing() }
+  def stopEditing(): Boolean     = { peer.stopEditing() }
+  def editingPath                  = peer.getEditingPath
 }

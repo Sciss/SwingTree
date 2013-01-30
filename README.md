@@ -6,7 +6,7 @@ The purpose of this fork/branch, using a BSD style license, is to move to a priv
 
 So to link to this fork:
 
-    "de.sciss" %% "swingtree" % "1.2.+"
+    "de.sciss" %% "swingtree" % "1.3.+"
 
 Below are the original notes.
 

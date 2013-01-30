@@ -51,8 +51,8 @@ trait RenderableCellsCompanion {
     def labeled[A](f: A => (Icon, String)): DefaultRenderer[A]
     
     protected trait LabelRenderer[-A] extends CellRenderer[A] {
-      _: DefaultRenderer[A] =>
-      def convert: A => (Icon, String)
+      this: DefaultRenderer[A] =>
+      val convert: A => (Icon, String)
       
       override abstract def componentFor(owner: Owner, a: A, info: companion.CellInfo): Component = {
         val c = super.componentFor(owner, a, info)
@@ -64,7 +64,7 @@ trait RenderableCellsCompanion {
     }
   }
 
-  trait CellRenderer[-A] extends Publisher  { 
+  trait CellRenderer[-A] extends Publisher  {
     val companion: CellRendererCompanion
     def peer: companion.Peer
     def componentFor(owner: Owner, value: A, cellInfo: companion.CellInfo): Component
